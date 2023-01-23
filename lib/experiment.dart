@@ -1,16 +1,43 @@
 import 'package:flutter/material.dart';
+import 'package:intl/intl.dart';
+import 'package:sqflite/sqflite.dart';
+import 'package:path/path.dart';
 import 'package:waybeo_app/requirmrnts/GlobalData.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+
+
+List<List<bool>> tasks = List.generate(7, (_) => [false, false, false]);
+  String updateText = "";
+  DateTime selectedDate = DateTime.now();
+  final formatter = DateFormat('yyyy-MM-dd');
+  String lastUpdated = "";
+  var db = openDatabase('mydb.db');
+
+  Future<Database> openDb() async {
+    final databasesPath = await getDatabasesPath();
+    final path = join(databasesPath, 'tasks.db');
+
+    return await openDatabase(
+      path,
+      onCreate: (db, version) {
+        return db.execute(
+          "CREATE TABLE Tasks(id INTEGER PRIMARY KEY, date TEXT, task INTEGER, status INTEGER)",
+        );
+      },
+      version: 1,
+    );
+  }
+String tt='';
+List<String> ltp=[];
+class tabletasks extends StatefulWidget {
+  const tabletasks({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<tabletasks> createState() => _tabletasksState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  List<String> sundayhis=[];
+class _tabletasksState extends State<tabletasks> {
+   List<String> sundayhis=[];
   List<String> mondayhis=[];
   List<String> tuesdayhis=[];
   List<String> wednesdayhis=[];
@@ -90,28 +117,7 @@ class _HomeScreenState extends State<HomeScreen> {
     setState(() {
       isloded=true;
     });
-    SharedPreferences pref = await SharedPreferences.getInstance();
-    pref.getStringList("sunday") != null
-        ? Globaldata.Sunday = pref.getStringList("sunday")!.toList()
-        : {};
-    pref.getStringList("monday") != null
-        ? Globaldata.Monday = pref.getStringList("monday")!.toList()
-        : {};
-    pref.getStringList("tuesday") != null
-        ? Globaldata.Tuesday = pref.getStringList("tuesday")!.toList()
-        : {};
-    pref.getStringList("wednesday") != null
-        ? Globaldata.wednesday = pref.getStringList("wednesday")!.toList()
-        : {};
-    pref.getStringList("thuesday") != null
-        ? Globaldata.Thuesday = pref.getStringList("thuesday")!.toList()
-        : {};
-    pref.getStringList("frinday") != null
-        ? Globaldata.Friday = pref.getStringList("friday")!.toList()
-        : {};
-    pref.getStringList("saturday") != null
-        ? Globaldata.Saturday = pref.getStringList("saturday")!.toList()
-        : {};
+   
         sundayhis.addAll(Globaldata.Sunday);
         mondayhis.addAll(Globaldata.Monday);
         tuesdayhis.addAll(Globaldata.Tuesday);
@@ -182,22 +188,19 @@ class _HomeScreenState extends State<HomeScreen> {
             
             TextButton(
                 onPressed: () async {
-                                    SharedPreferences prefs =
-                      await SharedPreferences.getInstance();
-                  prefs.setStringList("sunday", Sunday);
-                  prefs.setStringList("monday", Monday);
-                  prefs.setStringList("tuesday", Tuesday);
-                  prefs.setStringList("wednesday", wednesday);
-                  prefs.setStringList("thuesday", Thuesday);
-                  prefs.setStringList("friday", Friday);
-                  prefs.setStringList("saturday", Saturday);
-                  prefs.setBool("currentstate",Globaldata.stats);
-                  compareData();
+                 
                   setState(() {
-                    
+                    Globaldata.Sunday=Sunday;
+                    Globaldata.Monday=Monday;
+                    Globaldata.Thuesday=Tuesday;
+                    Globaldata.wednesday=wednesday;
+                    Globaldata.Thuesday=Thuesday;
+                    Globaldata.Friday=Friday;
+                    Globaldata.Saturday=Saturday;
 
                   });
-                
+                  compareData();
+                 
              
                 
                    
@@ -219,6 +222,8 @@ class _HomeScreenState extends State<HomeScreen> {
                     ),
                   ),
                 )),
+                
+                  Text(ltp.toString()+"\n"),
                 //  if(i>=1)...{
                 //       Column(children: [
                 //         Text("updated day"),
@@ -317,14 +322,14 @@ updatedDaySunday(),
         children: [
           InkWell(
               onTap: (() async {
-                SharedPreferences prefs = await SharedPreferences.getInstance();
+              
                 today[1] == "false"
                     ? setState(() {
                         today[1] = "True";
                         Globaldata.stats = true;
                         change.add('${today[0]}');
                         state = true;
-                        prefs.setBool("state", true);
+                       
                         print("globalstate" + Globaldata.stats.toString());
                       })
                     : setState(
@@ -333,12 +338,12 @@ updatedDaySunday(),
                           Globaldata.stats = false;
                            change.remove('${today[0]}');
                           state = false;
-                          prefs.setBool("state", false);
+                     
                           print("globalstate" + Globaldata.stats.toString());
                         },
                       );
     
-                print("shared" + prefs.getBool("state").toString());
+               
               }),
               child: Icon(
                 Icons.task_alt_sharp,
@@ -361,6 +366,7 @@ updatedDaySunday(),
                             today[2] == "false"
                                 ? setState(() {
                                     today[2] = "True";
+                                    
                                      change.add("morning");
                                   })
                                 : setState(
@@ -369,6 +375,16 @@ updatedDaySunday(),
                                        change.remove('morning');
                                     },
                                   );
+                                  setState(() {
+                                    today==Sunday?sundaych.add('morning'):{};
+                                    today==Monday?mondaych.add('morning'):{};
+                                    today==Tuesday?tuesdaych.add('morning'):{};
+                                    today==wednesday?wednesdaych.add('morning'):{};
+                                    today==Thuesday?thursdaydaych.add('morning'):{};
+                                    today==Friday?fridaydaych.add('morning'):{};
+                                    today==Saturday?saturdaych.add('morning'):{};
+                                   
+                                  });
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -406,6 +422,16 @@ updatedDaySunday(),
                                       change.remove('afternoon');
                                     },
                                   );
+                                  setState(() {
+                                    today==Sunday?sundaych.add('afternoon'):{};
+                                    today==Monday?mondaych.add('afternoon'):{};
+                                    today==Tuesday?tuesdaych.add('afternoon'):{};
+                                    today==wednesday?wednesdaych.add('afternoon'):{};
+                                    today==Thuesday?thursdaydaych.add('afternoon'):{};
+                                    today==Friday?fridaydaych.add('afternoon'):{};
+                                    today==Saturday?saturdaych.add('afternoon'):{};
+                                   
+                                  });
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -443,6 +469,16 @@ updatedDaySunday(),
                                       change.remove('evening');
                                     },
                                   );
+                                  setState(() {
+                                    today==Sunday?sundaych.add('evening'):{};
+                                    today==Monday?mondaych.add('evening'):{};
+                                    today==Tuesday?tuesdaych.add('evening'):{};
+                                    today==wednesday?wednesdaych.add('evening'):{};
+                                    today==Thuesday?thursdaydaych.add('evening'):{};
+                                    today==Friday?fridaydaych.add('evening'):{};
+                                    today==Saturday?saturdaych.add('morning'):{};
+                                   
+                                  });
                           },
                           child: Container(
                             decoration: BoxDecoration(
@@ -468,7 +504,7 @@ updatedDaySunday(),
                     ],
                   ),
                 )
-              : Center(
+              :const Center(
                   child: Text(
                     "Unavilable",
                     style: TextStyle(color: Colors.grey),
@@ -479,11 +515,34 @@ updatedDaySunday(),
     );
   }
   compareData(){
-   Globaldata.Sunday.asMap().forEach((index, value) {
-    if(value!=sundayhis[index]){
-      sundaych.add(value);
-      print("sunday ch ${sundaych[index]}");
+  //  Globaldata.Sunday.asMap().forEach((index, value) {
+    
+  //   if(value!=sundayhis[index]){
+      
+  //   }
+  //   });
+      ltp.clear();
+      // sundaych.add(value);
+      String tt="sunday ${sundaych}(last updated:${sundaych[sundaych.length-1]})";
+      print(tt);
+      ltp.add(tt);
+      sundaych.clear();
+  }
+  dataChange(){
+    
+    sundaych!=null?{
+      Text("sunday"),
+    sundaych.asMap().forEach((key, value) {
+       Text("$sundaych[index");
+    },)
     }
-    });
+   :{};
+    mondaych!=null?{
+      Text("monday"),
+    sundaych.asMap().forEach((key, value) {
+       Text("$mondaych[index");
+    },)
+    }
+   :{};
   }
 }

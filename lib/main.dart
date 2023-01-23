@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:waybeo_app/experiment.dart';
 import 'package:waybeo_app/splash.dart';
 
 void main() {
@@ -11,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: SplashScreen(),
+      home: tabletasks(),
     );
   }
 }
