@@ -101,6 +101,7 @@ getdata() async {
                   thuesday=pref.getStringList("thuesday");
                   friday=pref.getStringList("fridayday");
                   saturday=pref.getStringList("saturday");
+                  print("sunday"+sunday.toString());
                   print(pref.getBool("state"));
                   setState(() {
                     iscolumn=true;
